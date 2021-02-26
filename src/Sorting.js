@@ -17,11 +17,10 @@ import React, { useState } from "react";
 ]
 */
 
-const accounts = [
+const rows = [
   { firstName: "Adam", lastName: "Smoth", tokenId: "4127e3e6-e1e3-4de5-8273-7ed72fc4cd2f", created: "2021-02-19T01:58:59.525Z", workflowStatus: " ACCTREQ-DENIED" },
   { firstName: "John", lastName: "Smith", tokenId: "4127e3e6-e1e3-4de5-8273-7ed72fc4cd2f", created: "2021-02-20T01:30:00.034Z", workflowStatus: " ACCTREQ-APPROVED" },
-  { firstName: "John", lastName: "Smith", tokenId: "4127e3e6-e1e3-4de5-8273-7ed72fc4cd2f", created: "2021-02-19T23:00:33.034Z", workflowStatus: " ACCTREQ-TEST" },
-  // { firstName: "Mike", lastName: "Nugen", tokenId: "560459ea-b47a-4801-97b4-cc3500c6680a", created: "2021-02-19T01:37:36.910Z", workflowStatus: " ACCTREQ-APPROVED" },
+  { firstName: "Mike", lastName: "Nugen", tokenId: "560459ea-b47a-4801-97b4-cc3500c6680a", created: "2021-02-19T01:37:36.910Z", workflowStatus: " ACCTREQ-APPROVED" },
 ];
 
 const columns = [
@@ -50,12 +49,12 @@ function sortByFullName(items) {
     item['fullName'] = el.fullName;
     return item;
   });
-  console.table(sorted);
+  // console.table(sorted);
 
   return sorted;
 }
 
-function sortMap() {
+function testSortMap() {
   // the array to be sorted
   var list = ['CHARLIE', 'alpha', 'Bravo'];
 
@@ -105,65 +104,89 @@ function groupByTokenId(items) {
   return results;
 }
 
-function latestRecord(items, propName) {
-  console.table(items, ["fullName", propName]);
-  console.log('propName', propName);
-  const latest = items.sort( (a, b) => {
-    return (a.created < b.created) ? -1 : (a.created > b.created ? 1 : 0); 
+function latestRecordByPropName(items, propName) {
+  const sorted = items.sort((a, b) => {
+    return (a.created < b.created) ? -1 : (a.created > b.created ? 1 : 0);
   });
-  console.log('latest', latest);
+  // console.log('sorted', sorted);
 
-  console.log('latest[propName]', latest[propName]);
+  const latest = sorted[sorted.length - 1];
 
   return latest[propName];
 }
 
+function testPropName(propName) {
+  rows.forEach(item => {
+    console.log('item', item);
+    console.log('item[propName]', item[propName]);
+  })
+}
 
-function buildModel(groupedItems) {
+function buildTableData(groupedItems) {
   let parents = [];
   Object.keys(groupedItems).forEach(itemKey => {
     let children = groupedItems[itemKey];
     let data = {
       expanded: false,  // collapsed
-      fullName: latestRecord(children, columns[1].dataKey),
-      lastStatus: "",
+      fullName: latestRecordByPropName(children, "fullName"),
+      lastStatus: latestRecordByPropName(children, "created"),
       tokenId: itemKey,
-      children: children, 
+      children: children,
     };
     parents.push(data);
   });
-  // console.table(parents);
   return parents;
 }
 
+const data = [
+  { name: "one", expanded: false, children: [{ age: 1, color: "green" }] },
+  { name: "two", expanded: true }
+];
 
-function Sorting() {
+export default function Sorting() {
   console.log('render');
-  const [score, setScore] = useState({ p1: 0, p2: 10 });
-  // console.log('score', score);
+  const [scores, setScores] = useState({ p1: 0, p2: 10 });
+  // console.log('scores', scores);
   const increase = () => {
     console.log('clicked');
-    let temp = { ...score };
+    let temp = { ...scores };
     temp['p1'] = temp['p1'] + 1;
-    setScore(temp);
+    setScores(temp);
   }
 
-  const sortedData = sortByFullName(accounts);
-  const groupedData = groupByTokenId(sortedData);
-  const model = buildModel(groupedData);
-  // console.table(model);
+  const [expandedRows, setRows] = useState(data);
+  const toggleRow = () => {
+    let temp = [...expandedRows];
+    temp[0].expanded = !temp[0].expanded;
+    console.log('toggleRow', temp);
+    setRows(temp);
+  }
+
+  // const sortedData = sortByFullName(rows);
+  // // console.table(sortedData);
+
+  // const groupedRawData = groupByTokenId(sortedData);
+  // const tableData = buildTableData(groupedRawData);
+  // console.table(tableData);
+
 
   return (
     <div>
       <button onClick={increase}>Up</button>
       <ul>
-        {Object.keys(score).map((itemKey, index) => (
-          <li>{itemKey} : {score[itemKey]}</li>
+        {Object.keys(scores).map((itemKey, index) => (
+          <li>{itemKey} : {scores[itemKey]}</li>
         ))}
       </ul>
-      {/* <p>Score is {score} for {name}</p> */}
+
+      <button onClick={toggleRow}>Toggle Row 1</button>
+      <ul>
+        {expandedRows.map((row, index) => (
+          <li>{index} : {row.expanded ? "Expanded" : "Collapsed"}</li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-export default Sorting;
+// export default Sorting;

@@ -19,7 +19,7 @@ const rows = [
   { firstName: "John", lastName: "Smith", tokenId: "4127e3e6-e1e3-4de5-8273-7ed72fc4cd2f", created: "2021-02-19T01:58:59.525Z", workflowStatus: " ACCTREQ-DENIED" },
   { firstName: "Adam", lastName: "Smith", tokenId: "4127e3e6-e1e3-4de5-8273-7ed72fc4cd2f", created: "2021-02-19T01:30:02.796Z", workflowStatus: " ACCTREQ-DENIED" },
   { firstName: "John", lastName: "Smoth", tokenId: "4127e3e6-e1e3-4de5-8273-7ed72fc4cd2f", created: "2021-02-19T02:00:33.034Z", workflowStatus: " ACCTREQ-APPROVED" },
-  { firstName: "Mike", lastName: "Nugen", tokenId: "560459ea-b47a-4801-97b4-cc3500c6680a", created: "2021-02-19T01:37:36.910Z", workflowStatus: " ACCTREQ-APPROVED" },  
+  { firstName: "Mike", lastName: "Nugen", tokenId: "560459ea-b47a-4801-97b4-cc3500c6680a", created: "2021-02-19T01:37:36.910Z", workflowStatus: " ACCTREQ-APPROVED" },
 ];
 
 function getSorting(order, orderBy) {
@@ -54,7 +54,7 @@ class GroupedTable extends React.Component {
       expandedGroups[item] = this.state.expandedGroups.indexOf(item) !== -1;
       groupedData[item] = groupedData[item].sort(getSorting(sortOrder, sortBy));
     });
-    
+
     this.groups = expandedGroups;
 
     console.log('expandedGroups', expandedGroups);
@@ -128,14 +128,13 @@ class GroupedTable extends React.Component {
                     <span>{key}</span>
                   </TableCell>
                 </TableRow>
-                {this.groups[key] &&
-                  groupedData[key].map(item => (
-                    <TableRow>
-                      {columnData.map(col => (
-                        <TableCell>{item[col.dataKey]}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
+                {this.groups[key] && groupedData[key].map(item => (
+                  <TableRow>
+                    {columnData.map(col => (
+                      <TableCell>{item[col.dataKey]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
               </React.Fragment>
             );
           })}
