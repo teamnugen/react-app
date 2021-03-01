@@ -1,13 +1,40 @@
 import React, { useState } from "react";
+import TableContainer from '@material-ui/core/TableContainer';
+import Paper from '@material-ui/core/Paper';
+
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import IconButton from "@material-ui/core/IconButton";
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
+import ExpandLess from "@material-ui/icons/ExpandLess";
+import ExpandMore from "@material-ui/icons/ExpandMore";
 
+/*
+[  <-- sorted by full name asc
+  {
+    // top row (expandible row attributes)
+    fullName: 'Smith, John',  <- most recent?
+    tokenId: tokenId,
+    lastStatus: APPROVED,
+    expanded: false,
+    children: [   <-- sorted by date
+      { .. },
+      { .. },
+    ]
+  },
+  ...
+]
+*/
+
+const columns = [
+  { dataKey: "button", title: "" },
+  { dataKey: "name", title: "Name" },
+  { dataKey: "tokenId", title: "Token ID" },
+  { dataKey: "created", title: "Submitted" },
+  { dataKey: "workflowStatus", title: "Request Status" },
+];
 
 export default function GroupedTableV3({ tableData }) {
   console.log("RENDERRRRRRRRRRR");
@@ -15,87 +42,104 @@ export default function GroupedTableV3({ tableData }) {
 
   const [tableRows, setTableRows] = useState(tableData);
 
-  const toggleTableRow = selectedRow => {
+  const toggleTableRow = (selectedRow) => {
     // console.log("toggleTableRow", selectedRow);
 
     let tempRows = [...tableRows];
-    let found = tempRows.find(row => row.tokenId === selectedRow.tokenId);
+    let found = tempRows.find((row) => row.tokenId === selectedRow.tokenId);
     found.expanded = !found.expanded;
 
     console.table(tempRows);
 
     setTableRows(tempRows);
-  }
-
-  const [expandedRows, setExpandedRows] = useState([]);
-  // console.log('expandedRows', expandedRows);
-
-  const toggleRow = row => {
-    let expRows = [];
-    if (expandedRows.includes(row.tokenId)) {
-      expRows = expandedRows.filter(item => item !== row.tokenId);
-    } else {
-      expRows = expandedRows.concat([row.tokenId]);
-    }
-    setExpandedRows(expRows);
   };
 
   return (
     <div>
       <p>Expanded Rows:</p>
       <ul>
-        {tableRows.map((item) => (
-          item.expanded && <li>{item.fullName}</li>
-        ))}
+        {tableRows.map((item) => item.expanded && <li>{item.fullName}</li>)}
       </ul>
-      <Table>
+
+      <TableContainer component={Paper}>
+        <Table aria-label="simple grouped table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>Full Name</TableCell>
+              <TableCell>Last Name</TableCell>
+              <TableCell>First Name</TableCell>
+              <TableCell>Submitted</TableCell>
+              <TableCell colSpan={2}>Request Status</TableCell>
+              {/* {columns.map(item => (
+        <TableCell key={item.title}>{item.title}</TableCell>
+      ))} */}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tableData.map((row, index) => (
+              <React.Fragment key={index}>
+                <TableRow>
+                  <TableCell colSpan={columns.length} onClick={() => toggleTableRow(row)}>
+                    <IconButton>
+                      {row.expanded ? <ExpandMore /> : <ExpandLess />}
+                    </IconButton>
+                    <span>{row.fullName}</span>
+                  </TableCell>
+                  <TableCell>{row.lastStatus}</TableCell>
+                  <TableCell>{row.created}</TableCell>
+                </TableRow>
+                {row.expanded && row.children.map((child) => (
+                  <TableRow key={row.id}>
+                    <TableCell />
+                    <TableCell />
+                    <TableCell>{child.lastName}</TableCell>
+                    <TableCell>{child.firstName}</TableCell>
+                    <TableCell>{child.created}</TableCell>
+                    <TableCell>{child.workflowStatus}</TableCell>
+                  </TableRow>
+                ))}
+              </React.Fragment>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* <Table>
         <TableHead>
           <TableRow>
-            <TableCell />
+            <TableCell size="small"/>
             <TableCell>Full Name</TableCell>
             <TableCell>Token ID</TableCell>
             <TableCell>Submitted</TableCell>
             <TableCell>Request Status</TableCell>
-            {/* {columns.map(item => (
-          <TableCell key={item.title}>{item.title}</TableCell>
-        ))} */}
           </TableRow>
         </TableHead>
         <TableBody>
           {tableData.map((item, index) => (
-            <TableRow key={index}>
-              <TableCell onClick={() => toggleTableRow(item)}>
-                <IconButton>
-                  {item.expanded ? <ExpandMore /> : <ExpandLess />}
-                </IconButton>
-                <span>{item.fullName}</span>
-              </TableCell>
-              <TableCell>
-                {item.tokenId} : {item.expanded ? "true" : "false"}
-              </TableCell>
-            </TableRow>
-            // <React.Fragment>
-            //   <TableRow key={index}>
-            //     <TableCell colSpan={columns.length} onClick={() => toggleRow(key)}>
-            //       <IconButton>
-            //         {expandedRows[key] ? <ExpandMore /> : <ExpandLess />}
-            //       </IconButton>
-            //       <span>{key}</span>
-            //     </TableCell>
-            //   </TableRow>
-            //   {expandedRows && groupedData[key].map(item => (
-            //     <TableRow>
-            //       <TableCell />
-            //       <TableCell />
-            //       {columns.map(col => (
-            //         <TableCell>{item[col.dataKey]}</TableCell>
-            //       ))}
-            //     </TableRow>
-            //   ))}
-            // </React.Fragment>
+            <React.Fragment>
+              <TableRow key={index}>
+                <TableCell onClick={() => toggleTableRow(item)}>
+                  <IconButton>
+                    {item.expanded ? <ExpandMore /> : <ExpandLess />}
+                  </IconButton>
+                </TableCell>
+                <TableCell>
+                  <span>{item.fullName}</span>
+                </TableCell>
+              </TableRow>
+              {item.expanded &&
+                item.children.map((child) => (
+                  {columns.map((col) => (
+                    <TableCell key={col.dataKey}>
+                      {child[col.dataKey]}
+                    </TableCell>
+                  ))}
+                ))}
+            </React.Fragment>
           ))}
         </TableBody>
-      </Table>
+      </Table> */}
     </div>
   );
 }

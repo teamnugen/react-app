@@ -71,25 +71,30 @@ function groupByTokenId(items) {
   return results;
 }
 
-function latestRecordByPropName(items, propName) {
+function latestRecord(items) {
   const sorted = items.sort((a, b) => {
     return (a.created < b.created) ? -1 : (a.created > b.created ? 1 : 0);
   });
-  // console.log('sorted', sorted);
-
-  const latest = sorted[sorted.length - 1];
-
-  return latest[propName];
+  return  sorted[sorted.length - 1];
 }
+
+// fullName: latestRecordByPropName(children, "fullName"),
+// function latestRecordByPropName(items, propName) {
+//   const latest = latestRecord(items);
+//   return latest[propName];
+// }
 
 function buildTableData(groupedItems) {
   let parents = [];
   Object.keys(groupedItems).forEach(itemKey => {
     let children = groupedItems[itemKey];
+    const latest = latestRecord(children);
     let data = {
       expanded: false,  // collapsed
-      fullName: latestRecordByPropName(children, "fullName"),
-      lastStatus: latestRecordByPropName(children, "created"),
+      // fullName: latestRecordByPropName(children, "fullName"),
+      // lastStatus: latestRecordByPropName(children, "created"),
+      fullName: latest.fullName,
+      lastStatus: latest.workflowStatus,
       tokenId: itemKey,
       children: children,
     };
